@@ -190,7 +190,7 @@ H5P.DragNResize = (function ($, EventDispatcher) {
       x: this.$element.offset().left + this.startWidth / 2,
       y: this.$element.offset().top + this.startHeight / 2
     }
-    const elementRotation = this.getMatrixComponents(this.$element.children().first()).rotation;
+    const elementRotation = this.getCSSTransformValues(this.$element.children().first()).rotation;
     const clickRotation = Math.atan((this.startCenter.y - y) / (this.startCenter.x - x));
     this.startRotation = clickRotation - elementRotation; // offset compansation previous rotation
     this.deltaStartX = this.startCenter.x - this.startX; // determine starting left or right
@@ -227,10 +227,10 @@ H5P.DragNResize = (function ($, EventDispatcher) {
 
     if (that.getMode() === 'resize') {
       // When element rotated, only allow resizing with fixed aspect ratio
-      // const angle = that.getMatrixComponents(that.$element.children().first()).angle;
+      // const angle = that.getCSSTransformValues(that.$element.children().first()).angle;
       const $outer = that.$element.children().first();
-      const foo = that.getMatrixComponents($outer);
-      if (foo.angle !== 0) {
+      const transformValues = that.getCSSTransformValues($outer);
+      if (transformValues.angle !== 0) {
         moveDiagonally = true;
         movesHorizontal = false;
         movesVertical = false;
@@ -319,15 +319,6 @@ H5P.DragNResize = (function ($, EventDispatcher) {
         }
       }
 
-      // let rotatedWidth = $outer.width() * foo.scale.x;
-      // let rotatedHeight = $outer.height() * foo.scale.y || 1;
-      // if ((foo.angle > 45 && foo.angle < 135) || (foo.angle > 225 && foo.angle < 315)) {
-      //   const tmp = rotatedWidth;
-      //   rotatedWidth = rotatedHeight;
-      //   rotatedHeight = tmp;
-      // }
-      // console.log('w:', rotatedWidth, 'h:', rotatedHeight);
-
       // Set min size
       if (that.newWidth <= that.minSize) {
         that.newWidth = that.minSize;
@@ -344,9 +335,7 @@ H5P.DragNResize = (function ($, EventDispatcher) {
       }
 
       // Apply ratio lock for all rotated elements
-      if (foo.angle !== 0) {
-        // TODO: This seems only to work for some angles, other glitch out.
-        //       Find a way to limit rotated element from getting to thin.
+      if (transformValues.angle !== 0) {
         that.lockDimensions(
           moveW,
           moveN,
@@ -544,7 +533,7 @@ H5P.DragNResize = (function ($, EventDispatcher) {
 
     if (!justToggled && that.getMode() === 'rotate') {
       const $outer = that.$element.children().first();
-      let angle = that.getMatrixComponents(that.$element).angle + that.getMatrixComponents($outer).angle;
+      let angle = that.getCSSTransformValues(that.$element).angle + that.getCSSTransformValues($outer).angle;
 
       // Only use degrees of 0-359
       angle = angle % 360;
@@ -597,11 +586,11 @@ H5P.DragNResize = (function ($, EventDispatcher) {
   }
 
   /**
-   * Get maxtrix components.
+   * Get maxtrix components of CSS transform property.
    * @param {H5P.jQuery} $element DOM element.
    * @return {object} Components: angle, rotation, scale, skew, translation.
    */
-  C.prototype.getMatrixComponents = function ($element) {
+  C.prototype.getCSSTransformValues = function ($element) {
     const matrix = $element.css('transform')
 
     let matrixValues
