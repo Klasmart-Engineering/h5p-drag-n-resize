@@ -527,7 +527,8 @@ H5P.DragNResize = (function ($, EventDispatcher) {
         left: that.newLeft,
         top: that.newTop,
         width: that.finalWidth / that.containerEm,
-        height: that.finalHeight / that.containerEm
+        height: that.finalHeight / that.containerEm,
+        useBrowserSize: true
       });
     }
 
